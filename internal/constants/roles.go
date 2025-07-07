@@ -1,9 +1,9 @@
 package constants
 
 const (
-	RoleUser  string = "user"
-	RoleAdmin string = "admin"
-	// RoleModerator string = "moderator"
+	RoleUser      string = "user"
+	RoleAdmin     string = "admin"
+	RoleModerator string = "moderator"
 )
 
 func IsValidRole(role string) bool {
