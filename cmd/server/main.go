@@ -6,11 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/BerylCAtieno/quickfire-backend/internal/database"
 	"github.com/BerylCAtieno/quickfire-backend/internal/middleware"
 	"github.com/BerylCAtieno/quickfire-backend/internal/routes"
 )
 
 func main() {
+
+	database.ConnectDatabase()
 	// Set Gin to release mode for production, or debug mode for development.
 	// gin.SetMode(gin.ReleaseMode) // Uncomment for production
 
@@ -32,7 +35,6 @@ func main() {
 		})
 	})
 
-	// Start the server
 	port := ":8080"
 	fmt.Printf("Quickfire API server starting on %s\n", port)
 	if err := router.Run(port); err != nil {
