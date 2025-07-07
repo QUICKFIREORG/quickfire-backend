@@ -6,12 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/BerylCAtieno/quickfire-backend/config"
 	"github.com/BerylCAtieno/quickfire-backend/internal/database"
 	"github.com/BerylCAtieno/quickfire-backend/internal/middleware"
 	"github.com/BerylCAtieno/quickfire-backend/internal/routes"
 )
 
 func main() {
+
+	config.LoadConfig()
 
 	database.ConnectDatabase()
 	// Set Gin to release mode for production, or debug mode for development.
