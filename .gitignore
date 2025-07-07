@@ -4,6 +4,9 @@
 # personal files
 project.md
 
+# Air temporary build directory
+tmp/
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
