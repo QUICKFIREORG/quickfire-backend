@@ -3,10 +3,10 @@ package database
 import (
 	"fmt"
 	"log"
-	"os"
+	"time"
 
+	"github.com/BerylCAtieno/quickfire-backend/config"
 	"github.com/BerylCAtieno/quickfire-backend/internal/models"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -14,41 +14,37 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() {
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
+		config.Config.DBHost,
+		config.Config.DBUser,
+		config.Config.DBPassword,
+		config.Config.DBName,
+		config.Config.DBPort,
+		config.Config.DBSSLMode,
+		config.Config.DBTimeZone,
+	)
+
 	var err error
-
-	err = godotenv.Load()
-	if err != nil {
-		log.Printf("Warning: .env file not found or could not be loaded in ConnectDatabase: %v. Assuming environment variables are set externally.\n", err)
-	}
-
-	host := os.Getenv("DB_HOST")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-	port := os.Getenv("DB_PORT")
-	sslmode := os.Getenv("DB_SSLMODE")
-
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Africa/Nairobi",
-		host, user, password, dbname, port, sslmode)
-
-	// Opening PostgreSQL connection
-
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("Failed to connect to database: " + err.Error())
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Checking Connection
 	sqlDB, err := DB.DB()
 	if err != nil {
-		panic("Failed to get generic database object from GORM: " + err.Error())
-	}
-	err = sqlDB.Ping()
-	if err != nil {
-		panic("Failed to ping database: " + err.Error())
+		log.Fatalf("Failed to get generic database object from GORM: %v", err)
 	}
 
-	// Migrate models
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+
+	err = sqlDB.Ping()
+	if err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+
 	err = DB.AutoMigrate(
 		&models.User{},
 		&models.Category{},
@@ -57,7 +53,7 @@ func ConnectDatabase() {
 		&models.Answer{},
 	)
 	if err != nil {
-		panic("Failed to auto migrate database: " + err.Error())
+		log.Fatalf("Failed to auto migrate database: %v", err)
 	}
 	fmt.Println("Database connection established and migrations run successfully!")
 }
